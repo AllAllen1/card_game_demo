@@ -39,7 +39,8 @@ class PygameApp:
         
         # Кнопки меню
         self.menu_buttons = [
-            {"text": "Новая игра", "rect": pygame.Rect(0, 0, 300, 50), "action": "start_game"},
+            {"text": "Играть (1 враг)", "rect": pygame.Rect(0, 0, 300, 50), "action": "start_game_1"},
+            {"text": "Играть (2 врага)", "rect": pygame.Rect(0, 0, 300, 50), "action": "start_game_2"},
             {"text": "Выход", "rect": pygame.Rect(0, 0, 300, 50), "action": "quit"}
         ]
         self._position_buttons()
@@ -103,15 +104,19 @@ class PygameApp:
     def play_card(self, card):
         """Разыгрывание карты"""
         if self.game.player.current_energy >= card.cost:
-            card.play(self.game.player, self.game.enemy)
+            self.game.player.current_energy -= card.cost
+            
+            # Для простоты: всегда бьем первого живого врага
+            target = self.game.enemies[0] if self.game.enemies else None
+            card.play(self.game.player, target)
+            
             self.game.player.hand.remove(card)
             self.game.player.discard_pile.append(card)
             print(f"Сыграна карта: {card.name}")
             
-            # Проверка победы над врагом
-            if self.game.enemy and self.game.enemy.current_hp <= 0:
-                print("Враг повержен!")
-                self.game.enemy = None
+            # Очистка мертвых врагов
+            self.game.enemies = [e for e in self.game.enemies if e.current_hp > 0]
+            if not self.game.enemies:
                 self.current_state = "victory"
         else:
             print("Недостаточно энергии!")
@@ -119,15 +124,17 @@ class PygameApp:
     
     def execute_button_action(self, action):
         """Выполнение действия кнопки"""
-        if action == "start_game":
-            self.start_new_game()
+        if action == "start_game_1":
+            self.start_new_game(1)
+        elif action == "start_game_2":
+            self.start_new_game(2)
         elif action == "quit":
             pygame.quit()
             sys.exit()
     
-    def start_new_game(self):
+    def start_new_game(self, num_enemies):
         """Начало новой игры"""
-        self.game = Game()
+        self.game = Game(num_enemies)
         self.current_state = "playing"
         print("Новая игра начата!")
     
@@ -216,14 +223,18 @@ class PygameApp:
     
     def draw_enemy_area(self):
         """Отрисовка области противника"""
-        enemy_rect = pygame.Rect(100, 120, self.SCREEN_WIDTH - 200, 150)
-        pygame.draw.rect(self.screen, (60, 60, 70), enemy_rect, border_radius=10)
-        pygame.draw.rect(self.screen, (120, 120, 140), enemy_rect, 2, border_radius=10)
-        
-        if self.game and hasattr(self.game, 'enemy') and self.game.enemy:
-            enemy = self.game.enemy
+        if not self.game or not hasattr(self.game, 'enemies'):
+            return
             
-            name_text = self.menu_font.render(f"{enemy.name} (Намерение: Атака {enemy.damage})", True, self.TEXT_COLOR)
+        for i, enemy in enumerate(self.game.enemies):
+            enemy_rect = pygame.Rect(100 + i * 350, 120, 300, 150)
+            
+            # Первый враг считается текущей целью и выделяется красным
+            border_color = (255, 50, 50) if i == 0 else (120, 120, 140)
+            pygame.draw.rect(self.screen, (60, 60, 70), enemy_rect, border_radius=10)
+            pygame.draw.rect(self.screen, border_color, enemy_rect, 2, border_radius=10)
+            
+            name_text = self.menu_font.render(f"{enemy.name} (Атака {enemy.damage})", True, self.TEXT_COLOR)
             self.screen.blit(name_text, (enemy_rect.x + 20, enemy_rect.y + 20))
             
             hp_text = f"HP: {enemy.current_hp}/{enemy.max_hp}"
@@ -249,13 +260,15 @@ class PygameApp:
         """Отрисовка одной карты"""
         card_rect = pygame.Rect(x, y, 100, 150)
         
-        # Основа карты
-        pygame.draw.rect(self.screen, (240, 240, 240), card_rect, border_radius=5)
+        # Отрисовка картинки карты
+        self.screen.blit(card.image, (x, y))
+        # Рамка вокруг карты
         pygame.draw.rect(self.screen, (50, 50, 50), card_rect, 2, border_radius=5)
         
         # Название карты
-        name_surface = self.debug_font.render(card.name, True, (0, 0, 0))
-        self.screen.blit(name_surface, (x + 5, y + 10))
+        name_surface = self.debug_font.render(card.name, True, (255, 255, 255))
+        pygame.draw.rect(self.screen, (0, 0, 0), (x + 2, y + 125, 96, 22)) # Черная подложка для текста
+        self.screen.blit(name_surface, (x + 5, y + 128))
         
         # Стоимость энергии
         cost_bg = pygame.Rect(x + 5, y + 5, 20, 20)
@@ -278,29 +291,25 @@ class PygameApp:
         end_rect = end_text.get_rect(center=self.end_turn_rect.center)
         self.screen.blit(end_text, end_rect)
     
+    def _draw_message_screen(self, title_text, title_color, bg_color):
+        """Отрисовка экранов с сообщениями (победа/поражение)"""
+        self.screen.fill(bg_color)
+        
+        title_surface = self.title_font.render(title_text, True, title_color)
+        title_rect = title_surface.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 - 50))
+        self.screen.blit(title_surface, title_rect)
+        
+        subtitle_surface = self.menu_font.render("Нажмите ESC для возврата в меню", True, self.TEXT_COLOR)
+        subtitle_rect = subtitle_surface.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50))
+        self.screen.blit(subtitle_surface, subtitle_rect)
+
     def draw_game_over(self):
         """Отрисовка экрана завершения игры"""
-        self.screen.fill((20, 20, 30))
-        
-        game_over_text = self.title_font.render("ИГРА ОКОНЧЕНА", True, (255, 100, 100))
-        text_rect = game_over_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 - 50))
-        self.screen.blit(game_over_text, text_rect)
-        
-        score_text = self.menu_font.render("Нажмите ESC для возврата в меню", True, self.TEXT_COLOR)
-        score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50))
-        self.screen.blit(score_text, score_rect)
+        self._draw_message_screen("ИГРА ОКОНЧЕНА", (255, 100, 100), (20, 20, 30))
     
     def draw_victory(self):
         """Отрисовка экрана победы"""
-        self.screen.fill((20, 40, 20))  # Темно-зеленый фон
-        
-        victory_text = self.title_font.render("ПОБЕДА!", True, (100, 255, 100))
-        text_rect = victory_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 - 50))
-        self.screen.blit(victory_text, text_rect)
-        
-        score_text = self.menu_font.render("Нажмите ESC для возврата в меню", True, self.TEXT_COLOR)
-        score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50))
-        self.screen.blit(score_text, score_rect)
+        self._draw_message_screen("ПОБЕДА!", (100, 255, 100), (20, 40, 20))
 
     def run(self):
         """Главный игровой цикл"""

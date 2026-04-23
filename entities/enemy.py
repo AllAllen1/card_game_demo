@@ -1,10 +1,9 @@
-class Enemy:
-    def __init__(self, name="Гоблин-разбойник", hp=25, damage=6):
-        self.name = name
-        self.max_hp = hp
-        self.current_hp = hp
+from entities import Entity
+
+class Enemy(Entity):
+    def __init__(self, name, hp, damage):
+        super().__init__(name, hp)
         self.damage = damage
-        self.armor = 0
 
     def take_turn(self, player):
         damage_to_deal = self.damage
@@ -17,3 +16,11 @@ class Enemy:
             
         # Остаток урона идет в здоровье
         player.current_hp -= damage_to_deal
+
+class Goblin(Enemy):
+    def __init__(self):
+        super().__init__(name="Гоблин-разбойник", hp=25, damage=6)
+
+class Skeleton(Enemy):
+    def __init__(self):
+        super().__init__(name="Скелет", hp=20, damage=5)
