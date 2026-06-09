@@ -68,8 +68,23 @@ class PygameApp:
         button_spacing = 20
         total_height = len(self.menu_buttons) * button_height + (len(self.menu_buttons) - 1) * button_spacing
         start_y = (self.SCREEN_HEIGHT - total_height) // 2
-        
+
         for i, button in enumerate(self.menu_buttons):
+            button["rect"] = pygame.Rect(
+                (self.SCREEN_WIDTH - button_width) // 2,
+                start_y + i * (button_height + button_spacing),
+                button_width,
+                button_height
+            )
+
+    def _position_pause_buttons(self):
+        button_width = 280
+        button_height = 50
+        button_spacing = 15
+        total_height = len(self.pause_buttons) * button_height + (len(self.pause_buttons) - 1) * button_spacing
+        start_y = (self.SCREEN_HEIGHT - total_height) // 2
+
+        for i, button in enumerate(self.pause_buttons):
             button["rect"] = pygame.Rect(
                 (self.SCREEN_WIDTH - button_width) // 2,
                 start_y + i * (button_height + button_spacing),
