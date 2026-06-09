@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 from game import Game
+from save_manager import save_game, load_game, has_save
 
 class PygameApp:
     def __init__(self):
@@ -43,7 +44,13 @@ class PygameApp:
             {"text": "Играть (2 врага)", "rect": pygame.Rect(0, 0, 300, 50), "action": "start_game_2"},
             {"text": "Выход", "rect": pygame.Rect(0, 0, 300, 50), "action": "quit"}
         ]
+        if has_save():
+            self.menu_buttons.insert(0, {"text": "Загрузить игру", "rect": pygame.Rect(0, 0, 300, 50), "action": "load_game"})
         self._position_buttons()
+
+        # Уведомление на экране
+        self._notification_text = ""
+        self._notification_timer = 0
     
     def _position_buttons(self):
         """Позиционирование кнопок меню по центру"""
@@ -79,6 +86,15 @@ class PygameApp:
                         return False
                 elif event.key == pygame.K_F1:
                     self.toggle_debug()
+                elif event.key == pygame.K_F5:
+                    if self.current_state == "playing" and self.game:
+                        save_game(self.game, self.current_state)
+                        self._show_notification("Игра сохранена!")
+                elif event.key == pygame.K_F9:
+                    result = load_game()
+                    if result:
+                        self.game, self.current_state = result
+                        self._show_notification("Игра загружена!")
         
         return True
     
@@ -128,6 +144,11 @@ class PygameApp:
             self.start_new_game(1)
         elif action == "start_game_2":
             self.start_new_game(2)
+        elif action == "load_game":
+            result = load_game()
+            if result:
+                self.game, self.current_state = result
+                self._show_notification("Игра загружена!")
         elif action == "quit":
             pygame.quit()
             sys.exit()
@@ -140,8 +161,20 @@ class PygameApp:
     
     def toggle_debug(self):
         """Переключение режима отладки"""
-        # Можно добавить отладочную информацию
         pass
+
+    def _show_notification(self, text, duration_ms=2000):
+        self._notification_text = text
+        self._notification_timer = pygame.time.get_ticks() + duration_ms
+
+    def _draw_notification(self):
+        if self._notification_text and pygame.time.get_ticks() < self._notification_timer:
+            surf = self.menu_font.render(self._notification_text, True, (255, 255, 100))
+            rect = surf.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2))
+            bg = rect.inflate(20, 10)
+            pygame.draw.rect(self.screen, (30, 30, 30), bg, border_radius=6)
+            pygame.draw.rect(self.screen, (255, 255, 100), bg, 2, border_radius=6)
+            self.screen.blit(surf, rect)
     
     def draw_main_menu(self):
         """Отрисовка главного меню"""
