@@ -132,6 +132,11 @@ class PygameApp:
             for button in self.menu_buttons:
                 if button["rect"].collidepoint(mouse_pos):
                     self.execute_button_action(button["action"])
+
+        elif self.current_state == "paused":
+            for button in self.pause_buttons:
+                if button["rect"].collidepoint(mouse_pos):
+                    self.execute_button_action(button["action"])
         
         elif self.current_state == "playing":
             if self.end_turn_rect.collidepoint(mouse_pos):
