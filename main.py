@@ -318,11 +318,14 @@ class PygameApp:
         # Кнопка завершения хода
         mouse_pos = pygame.mouse.get_pos()
         color = self.BUTTON_HOVER_COLOR if self.end_turn_rect.collidepoint(mouse_pos) else self.BUTTON_COLOR
-        
+
         pygame.draw.rect(self.screen, color, self.end_turn_rect, border_radius=5)
         end_text = self.menu_font.render("Завершить ход", True, self.TEXT_COLOR)
         end_rect = end_text.get_rect(center=self.end_turn_rect.center)
         self.screen.blit(end_text, end_rect)
+
+        hint = self.debug_font.render("F5 — сохранить  F9 — загрузить", True, (150, 150, 150))
+        self.screen.blit(hint, (30, action_rect.y + 20))
     
     def _draw_message_screen(self, title_text, title_color, bg_color):
         """Отрисовка экранов с сообщениями (победа/поражение)"""
