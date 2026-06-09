@@ -32,7 +32,7 @@ class PygameApp:
         
         # Игровые объекты
         self.game = None
-        self.current_state = "main_menu"  # main_menu, playing, game_over, victory
+        self.current_state = "main_menu"  # main_menu, playing, paused, game_over, victory
         self.clock = pygame.time.Clock()
         
         # Кнопки UI в игре

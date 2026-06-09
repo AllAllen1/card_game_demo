@@ -1,0 +1,25 @@
+{
+  "current_state": "playing",
+  "player": {
+    "max_hp": 50,
+    "current_hp": 50,
+    "max_energy": 3,
+    "current_energy": 0,
+    "armor": 5,
+    "hand": [
+      "DefenseCard"
+    ],
+    "deck": [],
+    "discard_pile": [
+      "AttackCard",
+      "AttackCard",
+      "DefenseCard"
+    ]
+  },
+  "enemies": [
+    {
+      "type": "Goblin",
+      "current_hp": 13
+    }
+  ]
+}
