@@ -391,6 +391,29 @@ class PygameApp:
         subtitle_rect = subtitle_surface.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50))
         self.screen.blit(subtitle_surface, subtitle_rect)
 
+    def draw_pause_menu(self):
+        """Отрисовка меню паузы поверх игрового экрана"""
+        self.draw_playing_screen()
+
+        # Затемнение
+        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 160))
+        self.screen.blit(overlay, (0, 0))
+
+        # Заголовок
+        title = self.title_font.render("ПАУЗА", True, (220, 220, 220))
+        title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 - 160))
+        self.screen.blit(title, title_rect)
+
+        # Кнопки
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.pause_buttons:
+            color = self.BUTTON_HOVER_COLOR if button["rect"].collidepoint(mouse_pos) else self.BUTTON_COLOR
+            pygame.draw.rect(self.screen, color, button["rect"], border_radius=10)
+            pygame.draw.rect(self.screen, (255, 255, 255), button["rect"], 2, border_radius=10)
+            text = self.menu_font.render(button["text"], True, self.TEXT_COLOR)
+            self.screen.blit(text, text.get_rect(center=button["rect"].center))
+
     def draw_game_over(self):
         """Отрисовка экрана завершения игры"""
         self._draw_message_screen("ИГРА ОКОНЧЕНА", (255, 100, 100), (20, 20, 30))
