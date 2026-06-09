@@ -104,7 +104,11 @@ class PygameApp:
             
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if self.current_state in ["playing", "game_over", "victory"]:
+                    if self.current_state == "playing":
+                        self.current_state = "paused"
+                    elif self.current_state == "paused":
+                        self.current_state = "playing"
+                    elif self.current_state in ["game_over", "victory"]:
                         self.current_state = "main_menu"
                     else:
                         return False
