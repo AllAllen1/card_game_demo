@@ -199,7 +199,17 @@ class PygameApp:
         """Начало новой игры"""
         self.game = Game(num_enemies)
         self.current_state = "playing"
-        print("Новая игра начата!")
+
+    def _refresh_main_menu_buttons(self):
+        base = [
+            {"text": "Играть (1 враг)", "rect": pygame.Rect(0, 0, 300, 50), "action": "start_game_1"},
+            {"text": "Играть (2 врага)", "rect": pygame.Rect(0, 0, 300, 50), "action": "start_game_2"},
+            {"text": "Выход", "rect": pygame.Rect(0, 0, 300, 50), "action": "quit"},
+        ]
+        if has_save():
+            base.insert(0, {"text": "Загрузить игру", "rect": pygame.Rect(0, 0, 300, 50), "action": "load_game"})
+        self.menu_buttons = base
+        self._position_buttons()
     
     def toggle_debug(self):
         """Переключение режима отладки"""
