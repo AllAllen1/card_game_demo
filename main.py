@@ -207,7 +207,7 @@ class PygameApp:
             self.screen.blit(text_surface, text_rect)
         
         # Футер
-        footer_text = "Нажмите F1 для отладки | ESC для выхода"
+        footer_text = "F1 — отладка | ESC — выход"
         footer_surface = self.debug_font.render(footer_text, True, (150, 150, 150))
         footer_rect = footer_surface.get_rect(center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT - 30))
         self.screen.blit(footer_surface, footer_rect)
