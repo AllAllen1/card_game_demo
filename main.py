@@ -48,6 +48,15 @@ class PygameApp:
             self.menu_buttons.insert(0, {"text": "Загрузить игру", "rect": pygame.Rect(0, 0, 300, 50), "action": "load_game"})
         self._position_buttons()
 
+        # Кнопки меню паузы
+        self.pause_buttons = [
+            {"text": "Продолжить", "rect": pygame.Rect(0, 0, 280, 50), "action": "resume"},
+            {"text": "Сохранить игру", "rect": pygame.Rect(0, 0, 280, 50), "action": "save_game"},
+            {"text": "Загрузить игру", "rect": pygame.Rect(0, 0, 280, 50), "action": "load_game"},
+            {"text": "В главное меню", "rect": pygame.Rect(0, 0, 280, 50), "action": "main_menu"},
+        ]
+        self._position_pause_buttons()
+
         # Уведомление на экране
         self._notification_text = ""
         self._notification_timer = 0
