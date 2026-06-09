@@ -436,6 +436,8 @@ class PygameApp:
                 self.draw_main_menu()
             elif self.current_state == "playing":
                 self.draw_playing_screen()
+            elif self.current_state == "paused":
+                self.draw_pause_menu()
             elif self.current_state == "game_over":
                 self.draw_game_over()
             elif self.current_state == "victory":
