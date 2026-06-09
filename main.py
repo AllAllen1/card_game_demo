@@ -177,11 +177,20 @@ class PygameApp:
             self.start_new_game(1)
         elif action == "start_game_2":
             self.start_new_game(2)
+        elif action == "resume":
+            self.current_state = "playing"
+        elif action == "save_game":
+            if self.game:
+                save_game(self.game, "playing")
+                self._show_notification("Игра сохранена!")
+                self._refresh_main_menu_buttons()
         elif action == "load_game":
             result = load_game()
             if result:
                 self.game, self.current_state = result
                 self._show_notification("Игра загружена!")
+        elif action == "main_menu":
+            self.current_state = "main_menu"
         elif action == "quit":
             pygame.quit()
             sys.exit()
