@@ -362,7 +362,9 @@ class PygameApp:
                 self.draw_game_over()
             elif self.current_state == "victory":
                 self.draw_victory()
-            
+
+            self._draw_notification()
+
             # Обновление экрана
             pygame.display.flip()
             
